@@ -13,12 +13,12 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Phase 0 — Project scaffolding
 
-- [ ] Initialise repo, `.gitignore`, license
-- [ ] `backend/` Python project (`pyproject.toml`, venv, FastAPI, SQLAlchemy, Alembic, pytest)
-- [ ] `frontend/` React + TypeScript project (Vite)
-- [ ] `docker-compose.yml` (frontend, backend, PostgreSQL services)
-- [ ] Backend "hello world" endpoint reachable from frontend
-- [ ] Decide and document config for DB URL switching (SQLite vs PostgreSQL)
+- [x] Initialise repo, `.gitignore`, license
+- [x] `backend/` Python project (`pyproject.toml`, venv, FastAPI, SQLAlchemy, Alembic, pytest)
+- [x] `frontend/` React + TypeScript project (Vite)
+- [x] `docker-compose.yml` (frontend, backend, PostgreSQL services)
+- [x] Backend "hello world" endpoint reachable from frontend
+- [x] Decide and document config for DB URL switching (SQLite vs PostgreSQL)
 
 ## Phase 1 — Simulation engine (pure Python, no web/DB)
 
