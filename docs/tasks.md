@@ -57,14 +57,14 @@ This is the core. Build and unit-test in isolation.
 
 ## Phase 3 — API
 
-- [ ] Pydantic schemas for parameters, state, stats
-- [ ] `POST /simulations` (create from parameters, return id + seed)
-- [ ] `POST /simulations/{id}/step` and `/run`
-- [ ] `POST /simulations/{id}/stop`
-- [ ] `GET /simulations/{id}/state` (board state for rendering)
-- [ ] `GET /simulations` (history) and `GET /simulations/{id}`
-- [ ] `GET /simulations/{id}/stats` (time series)
-- [ ] API tests via FastAPI test client
+- [x] Pydantic schemas for parameters, state, stats
+- [x] `POST /simulations` (create from parameters, return id + seed)
+- [x] `POST /simulations/{id}/step` and `/run`
+- [x] `POST /simulations/{id}/stop`
+- [x] `GET /simulations/{id}/state` (board state for rendering)
+- [x] `GET /simulations` (history) and `GET /simulations/{id}`
+- [x] `GET /simulations/{id}/stats` (time series)
+- [x] API tests via FastAPI test client
 
 ## Phase 4 — Frontend shell & config
 
