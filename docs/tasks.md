@@ -49,10 +49,10 @@ This is the core. Build and unit-test in isolation.
 
 ## Phase 2 — Persistence
 
-- [ ] SQLAlchemy models: `simulation_run`, `tick_snapshot`
-- [ ] Alembic initial migration
-- [ ] Write run row on create; update status/finished_at on completion
-- [ ] Write `tick_snapshot` rows respecting `snapshot_enabled` / `snapshot_interval`
+- [x] SQLAlchemy models: `simulation_run`, `tick_snapshot`
+- [x] Alembic initial migration
+- [x] Write run row on create; update status/finished_at on completion
+- [x] Write `tick_snapshot` rows respecting `snapshot_enabled` / `snapshot_interval`
 - [ ] Verify SQLite locally; verify PostgreSQL via Docker
 
 ## Phase 3 — API
