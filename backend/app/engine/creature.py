@@ -9,6 +9,12 @@ class Sex(Enum):
     FEMALE = "female"
 
 
+class DeathCause(Enum):
+    OLD_AGE = "old_age"
+    STARVATION = "starvation"
+    FIGHT = "fight"
+
+
 @dataclass
 class Genome:
     lifespan: int
