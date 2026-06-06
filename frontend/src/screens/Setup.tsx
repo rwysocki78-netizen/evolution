@@ -72,6 +72,9 @@ function validate(p: SimParamsRequest): string[] {
     if (lo > hi) errors.push(`${label}: min must be ≤ max.`)
   }
   if (p.total_turns < 1) errors.push('Total turns must be at least 1.')
+  if (p.reproduction_weights.some(w => w.weight <= 0)) {
+    errors.push('Each reproduction weight must be greater than 0.')
+  }
   return errors
 }
 

@@ -26,6 +26,7 @@ dist/
 build/
 .vite/
 *.local
+*.tsbuildinfo
 
 # Logs
 *.log

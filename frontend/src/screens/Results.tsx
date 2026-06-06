@@ -6,26 +6,30 @@ import type { SimulationResponse, TickSnapshotResponse } from '../types'
 export default function Results() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const simId = parseInt(id!, 10)
+  const simId = parseInt(id ?? '', 10)
+  const validId = Number.isFinite(simId)
 
   const [sim, setSim] = useState<SimulationResponse | null>(null)
   const [stats, setStats] = useState<TickSnapshotResponse[]>([])
+  const [statsLoading, setStatsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!validId) { setError('Invalid simulation ID.'); setStatsLoading(false); return }
     api.simulations.get(simId)
       .then(setSim)
       .catch(() => setError('Failed to load simulation.'))
     api.simulations.getStats(simId)
       .then(setStats)
       .catch(() => {})
-  }, [simId])
+      .finally(() => setStatsLoading(false))
+  }, [simId, validId])
 
   const last = stats[stats.length - 1] ?? null
 
   return (
     <div className="screen">
-      <h1>Results — Simulation #{simId}</h1>
+      <h1>Results — Simulation #{validId ? simId : '?'}</h1>
 
       {error && <div className="error-box"><p>{error}</p></div>}
 
@@ -39,7 +43,9 @@ export default function Results() {
         </div>
       )}
 
-      {last ? (
+      {statsLoading ? (
+        <p style={{ color: '#8a9bb5' }}>Loading stats…</p>
+      ) : last ? (
         <>
           <div className="stats-card">
             <h3>Population (tick {last.tick})</h3>
@@ -87,9 +93,7 @@ export default function Results() {
           <p className="phase-note">Trait-drift charts and death-cause breakdown coming in Phase 6.</p>
         </>
       ) : (
-        <p style={{ color: '#8a9bb5' }}>
-          {stats.length === 0 ? 'No snapshots recorded for this run.' : 'Loading stats…'}
-        </p>
+        <p style={{ color: '#8a9bb5' }}>No snapshots recorded for this run.</p>
       )}
 
       <div className="controls">

@@ -18,7 +18,10 @@ export default function ParamForm({ params, onChange }: Props) {
           step={1}
           min={min}
           value={params[key] as number}
-          onChange={e => set(key, parseInt(e.target.value, 10))}
+          onChange={e => {
+            const v = e.target.valueAsNumber
+            if (Number.isFinite(v)) set(key, Math.round(v))
+          }}
         />
       </td>
     </tr>
@@ -40,7 +43,10 @@ export default function ParamForm({ params, onChange }: Props) {
           min={min}
           max={max}
           value={params[key] as number}
-          onChange={e => set(key, parseFloat(e.target.value))}
+          onChange={e => {
+            const v = e.target.valueAsNumber
+            if (Number.isFinite(v)) set(key, v)
+          }}
         />
       </td>
     </tr>
@@ -62,7 +68,10 @@ export default function ParamForm({ params, onChange }: Props) {
               step={step}
               value={lo}
               style={{ width: 80 }}
-              onChange={e => set(key, [parseFloat(e.target.value), hi])}
+              onChange={e => {
+                const v = e.target.valueAsNumber
+                if (Number.isFinite(v)) set(key, [v, hi])
+              }}
             />
             <span>–</span>
             <input
@@ -70,7 +79,10 @@ export default function ParamForm({ params, onChange }: Props) {
               step={step}
               value={hi}
               style={{ width: 80 }}
-              onChange={e => set(key, [lo, parseFloat(e.target.value)])}
+              onChange={e => {
+                const v = e.target.valueAsNumber
+                if (Number.isFinite(v)) set(key, [lo, v])
+              }}
             />
           </div>
         </td>
@@ -92,7 +104,7 @@ export default function ParamForm({ params, onChange }: Props) {
         <table>
           <tbody>
             {intInput('board_size', 'Board size', 5)}
-            {intInput('initial_population', 'Initial population', 1)}
+            {intInput('initial_population', 'Initial population', 2)}
             {intInput('total_turns', 'Total turns', 1)}
             <tr>
               <td>Behavior strategy</td>
@@ -113,9 +125,11 @@ export default function ParamForm({ params, onChange }: Props) {
                   type="number"
                   step={1}
                   value={params.seed ?? ''}
-                  onChange={e =>
-                    set('seed', e.target.value === '' ? null : parseInt(e.target.value, 10))
-                  }
+                  onChange={e => {
+                    if (e.target.value === '') { set('seed', null); return }
+                    const v = e.target.valueAsNumber
+                    if (Number.isFinite(v)) set('seed', Math.round(v))
+                  }}
                 />
               </td>
             </tr>
@@ -190,8 +204,8 @@ export default function ParamForm({ params, onChange }: Props) {
         <table>
           <thead>
             <tr>
-              <td style={{ color: '#8a9bb5', fontWeight: 600 }}>Children</td>
-              <td style={{ color: '#8a9bb5', fontWeight: 600 }}>Weight</td>
+              <th scope="col">Children</th>
+              <th scope="col">Weight</th>
             </tr>
           </thead>
           <tbody>
@@ -202,10 +216,13 @@ export default function ParamForm({ params, onChange }: Props) {
                   <input
                     type="number"
                     step={0.05}
-                    min={0}
+                    min={0.01}
                     max={1}
                     value={rw.weight}
-                    onChange={e => updateWeight(i, parseFloat(e.target.value))}
+                    onChange={e => {
+                      const v = e.target.valueAsNumber
+                      if (Number.isFinite(v) && v > 0) updateWeight(i, v)
+                    }}
                   />
                 </td>
               </tr>

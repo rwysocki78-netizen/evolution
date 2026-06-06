@@ -10,7 +10,16 @@ const BASE = '/api'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, init)
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    let detail = text
+    try {
+      const json = JSON.parse(text)
+      if (typeof json.detail === 'string') detail = json.detail
+      else if (json.detail) detail = JSON.stringify(json.detail)
+    } catch { /* ignore */ }
+    throw new Error(`${res.status} ${res.statusText}${detail ? `: ${detail}` : ''}`)
+  }
   return res.json() as Promise<T>
 }
 

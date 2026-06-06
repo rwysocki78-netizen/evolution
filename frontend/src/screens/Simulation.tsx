@@ -6,7 +6,8 @@ import type { BoardStateResponse, SimulationResponse } from '../types'
 export default function Simulation() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const simId = parseInt(id!, 10)
+  const simId = parseInt(id ?? '', 10)
+  const validId = Number.isFinite(simId)
 
   const [sim, setSim] = useState<SimulationResponse | null>(null)
   const [state, setState] = useState<BoardStateResponse | null>(null)
@@ -14,11 +15,12 @@ export default function Simulation() {
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
+    if (!validId) { setError('Invalid simulation ID.'); return }
     api.simulations.get(simId).then(setSim).catch(() => setError('Failed to load simulation.'))
     api.simulations.getState(simId).then(setState).catch(() => {
       // State unavailable if server restarted — not fatal
     })
-  }, [simId])
+  }, [simId, validId])
 
   const isDone = sim?.status === 'completed' || sim?.status === 'stopped'
 
@@ -67,7 +69,7 @@ export default function Simulation() {
 
   return (
     <div className="screen">
-      <h1>Simulation #{simId}</h1>
+      <h1>Simulation #{validId ? simId : '?'}</h1>
 
       {error && <div className="error-box"><p>{error}</p></div>}
 
@@ -83,11 +85,11 @@ export default function Simulation() {
       )}
 
       <div className="controls">
-        <button onClick={handleStep} disabled={busy || isDone}>Step</button>
-        <button onClick={handleRun} disabled={busy || isDone} className="btn-accent">
+        <button onClick={handleStep} disabled={busy || isDone || !validId}>Step</button>
+        <button onClick={handleRun} disabled={busy || isDone || !validId} className="btn-accent">
           Run to end
         </button>
-        <button onClick={handleStop} disabled={busy || isDone} className="btn-danger">
+        <button onClick={handleStop} disabled={busy || isDone || !validId} className="btn-danger">
           Stop
         </button>
         <button onClick={() => navigate(`/results/${simId}`)}>View Results</button>
