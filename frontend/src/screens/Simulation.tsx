@@ -1,7 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
+import Board from '../components/Board'
 import type { BoardStateResponse, SimulationResponse } from '../types'
+
+const MIN_DELAY_MS = 50
+const MAX_DELAY_MS = 2000
+
+const delayToSlider = (ms: number) => MIN_DELAY_MS + MAX_DELAY_MS - ms
+const sliderToDelay = (v: number) => MIN_DELAY_MS + MAX_DELAY_MS - v
 
 export default function Simulation() {
   const { id } = useParams<{ id: string }>()
@@ -13,49 +20,44 @@ export default function Simulation() {
   const [state, setState] = useState<BoardStateResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [playing, setPlaying] = useState(false)
+  const [delay, setDelay] = useState(300)
+
+  const isDone = sim?.status === 'completed' || sim?.status === 'stopped'
+  const isDoneRef = useRef(isDone)
+  const delayRef = useRef(delay)
+  useEffect(() => { isDoneRef.current = isDone }, [isDone])
+  useEffect(() => { delayRef.current = delay }, [delay])
 
   useEffect(() => {
     if (!validId) { setError('Invalid simulation ID.'); return }
     setError(null)
     api.simulations.get(simId).then(setSim).catch(() => setError('Failed to load simulation.'))
-    api.simulations.getState(simId).then(setState).catch(() => {
-      // State unavailable if server restarted — not fatal
-    })
+    api.simulations.getState(simId).then(setState).catch(() => {})
   }, [simId, validId])
 
-  const isDone = sim?.status === 'completed' || sim?.status === 'stopped'
-
-  const handleStep = async () => {
-    setBusy(true)
-    setError(null)
+  const doStep = async (): Promise<boolean> => {
     try {
       const res = await api.simulations.step(simId)
       setState(res.state)
-      if (res.completed) setSim(s => s ? { ...s, status: 'completed', total_turns_run: res.turns_run } : s)
+      setSim(s => s ? { ...s, total_turns_run: res.turns_run, ...(res.completed ? { status: 'completed' } : {}) } : s)
+      return res.completed
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Step failed.')
-    } finally {
-      setBusy(false)
+      return true
     }
   }
 
-  const handleRun = async () => {
+  const handleStep = async () => {
+    if (busy || isDone) return
     setBusy(true)
     setError(null)
-    try {
-      const res = await api.simulations.run(simId)
-      setState(res.state)
-      setSim(s => s
-        ? { ...s, status: res.completed ? 'completed' : s.status, total_turns_run: res.turns_run }
-        : s)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Run failed.')
-    } finally {
-      setBusy(false)
-    }
+    await doStep()
+    setBusy(false)
   }
 
   const handleStop = async () => {
+    setPlaying(false)
     setBusy(true)
     setError(null)
     try {
@@ -68,8 +70,33 @@ export default function Simulation() {
     }
   }
 
+  useEffect(() => {
+    if (!playing) return
+    let active = true
+
+    const loop = async () => {
+      while (active && !isDoneRef.current) {
+        setBusy(true)
+        const done = await doStep()
+        setBusy(false)
+        if (done || !active) break
+        await new Promise<void>(r => setTimeout(r, delayRef.current))
+      }
+      if (active) setPlaying(false)
+    }
+
+    loop()
+    return () => { active = false }
+  }, [playing, simId])
+
+  const males = state?.creatures.filter(c => c.sex === 'male').length ?? 0
+  const females = state?.creatures.filter(c => c.sex === 'female').length ?? 0
+  const ticksPerSec = delay < 100
+    ? `${(1000 / delay).toFixed(0)} t/s`
+    : `${(1000 / delay).toFixed(1)} t/s`
+
   return (
-    <div className="screen">
+    <div className="screen sim-screen">
       <h1>Simulation #{validId ? simId : '?'}</h1>
 
       {error && <div className="error-box"><p>{error}</p></div>}
@@ -79,16 +106,23 @@ export default function Simulation() {
           <span>Status: <strong>{sim.status}</strong></span>
           <span>Tick: <strong>{state?.tick ?? 0}</strong> / {sim.total_turns_configured}</span>
           <span>Population: <strong>{state?.creatures.length ?? '—'}</strong></span>
+          <span title="male">♂ <strong>{males}</strong></span>
+          <span title="female">♀ <strong>{females}</strong></span>
           <span>Board: {sim.board_size}×{sim.board_size}</span>
           <span>Strategy: {sim.behavior_strategy}</span>
-          <span>Seed: {sim.seed}</span>
         </div>
       )}
 
       <div className="controls">
-        <button onClick={handleStep} disabled={busy || isDone || !validId}>Step</button>
-        <button onClick={handleRun} disabled={busy || isDone || !validId} className="btn-accent">
-          Run to end
+        <button onClick={handleStep} disabled={busy || isDone || playing || !validId}>
+          Step
+        </button>
+        <button
+          onClick={() => { setError(null); setPlaying(p => !p) }}
+          disabled={isDone || busy || !validId}
+          className="btn-accent"
+        >
+          {playing ? 'Pause' : 'Play'}
         </button>
         <button onClick={handleStop} disabled={busy || isDone || !validId} className="btn-danger">
           Stop
@@ -97,9 +131,28 @@ export default function Simulation() {
         <button onClick={() => navigate('/')}>New Simulation</button>
       </div>
 
-      <div className="board-placeholder">
-        <span>Board rendering</span>
-        <span className="phase-note">Canvas renderer coming in Phase 5</span>
+      <div className="speed-control">
+        <label>Speed: <strong>{ticksPerSec}</strong></label>
+        <input
+          type="range"
+          min={MIN_DELAY_MS}
+          max={MAX_DELAY_MS}
+          step={50}
+          value={delayToSlider(delay)}
+          onChange={e => setDelay(sliderToDelay(parseInt(e.target.value, 10)))}
+        />
+        <span className="speed-hint">slow</span>
+        <span className="speed-hint">fast</span>
+      </div>
+
+      <div className="board-wrap">
+        <Board state={state} />
+        <div className="board-legend">
+          <span className="legend-dot male" />Male
+          <span className="legend-dot female" />Female
+          <span className="legend-dot fruit" />Fruit
+          <span className="legend-dot poison" />Poison
+        </div>
       </div>
     </div>
   )

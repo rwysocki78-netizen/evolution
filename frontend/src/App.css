@@ -169,22 +169,59 @@ select { width: auto; min-width: 120px; cursor: pointer; }
 .stats-card td:first-child { color: #8a9bb5; width: 220px; }
 .stats-card td:last-child { font-variant-numeric: tabular-nums; }
 
-/* ── Board placeholder ── */
+/* ── Simulation screen layout ── */
 
-.board-placeholder {
-  background: #16161d;
-  border: 1px solid #2a2a38;
-  border-radius: 8px;
-  padding: 40px 24px;
+.sim-screen { max-width: 660px; }
+
+/* ── Speed control ── */
+
+.speed-control {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #4a5568;
+  gap: 10px;
+  margin: 4px 0 14px;
   font-size: 13px;
-  min-height: 160px;
+  color: #8a9bb5;
 }
+
+.speed-control label { min-width: 110px; }
+.speed-control label strong { color: #dde1e9; }
+
+.speed-control input[type="range"] {
+  width: 160px;
+  accent-color: #7ecfa4;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.speed-hint { color: #4a5568; font-size: 11px; }
+
+/* ── Board ── */
+
+.board-wrap { display: flex; flex-direction: column; gap: 10px; }
+
+.board-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: #8a9bb5;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.legend-dot.male    { background: #5ba3d9; }
+.legend-dot.female  { background: #d97ab8; }
+.legend-dot.fruit   { background: #7ecfa4; }
+.legend-dot.poison  { background: #cf7e7e; }
 
 /* ── History list ── */
 
