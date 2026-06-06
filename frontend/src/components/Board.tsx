@@ -1,9 +1,8 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import type { BoardStateResponse } from '../types'
 
 interface BoardProps {
   state: BoardStateResponse | null
-  pixelSize?: number
 }
 
 const MALE_COLOR = '#5ba3d9'
@@ -13,8 +12,21 @@ const POISON_COLOR = '#cf7e7e'
 const GRID_BG = '#0f0f13'
 const GRID_LINE = '#1e1e28'
 
-export default function Board({ state, pixelSize = 600 }: BoardProps) {
+export default function Board({ state }: BoardProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [cssSize, setCssSize] = useState(600)
+
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const obs = new ResizeObserver(entries => {
+      const w = entries[0]?.contentRect.width ?? 600
+      setCssSize(Math.floor(w))
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -22,22 +34,29 @@ export default function Board({ state, pixelSize = 600 }: BoardProps) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    const dpr = window.devicePixelRatio || 1
+    canvas.width = cssSize * dpr
+    canvas.height = cssSize * dpr
+    canvas.style.width = `${cssSize}px`
+    canvas.style.height = `${cssSize}px`
+    ctx.scale(dpr, dpr)
+
     const boardSize = state?.board_size ?? 20
-    const cell = pixelSize / boardSize
+    const cell = cssSize / boardSize
 
     ctx.fillStyle = GRID_BG
-    ctx.fillRect(0, 0, pixelSize, pixelSize)
+    ctx.fillRect(0, 0, cssSize, cssSize)
 
     ctx.strokeStyle = GRID_LINE
     ctx.lineWidth = 0.5
     for (let i = 0; i <= boardSize; i++) {
       ctx.beginPath()
       ctx.moveTo(i * cell, 0)
-      ctx.lineTo(i * cell, pixelSize)
+      ctx.lineTo(i * cell, cssSize)
       ctx.stroke()
       ctx.beginPath()
       ctx.moveTo(0, i * cell)
-      ctx.lineTo(pixelSize, i * cell)
+      ctx.lineTo(cssSize, i * cell)
       ctx.stroke()
     }
 
@@ -68,14 +87,14 @@ export default function Board({ state, pixelSize = 600 }: BoardProps) {
       ctx.arc(cx(c.x), cy(c.y), creatureR, 0, Math.PI * 2)
       ctx.fill()
     }
-  }, [state, pixelSize])
+  }, [state, cssSize])
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={pixelSize}
-      height={pixelSize}
-      style={{ display: 'block', borderRadius: 8, border: '1px solid #2a2a38' }}
-    />
+    <div ref={wrapperRef} style={{ width: '100%' }}>
+      <canvas
+        ref={canvasRef}
+        style={{ display: 'block', borderRadius: 8, border: '1px solid #2a2a38' }}
+      />
+    </div>
   )
 }

@@ -4,6 +4,12 @@ import { api } from '../api/client'
 import Board from '../components/Board'
 import type { BoardStateResponse, SimulationResponse } from '../types'
 
+const MIN_DELAY_MS = 50
+const MAX_DELAY_MS = 2000
+
+const delayToSlider = (ms: number) => MIN_DELAY_MS + MAX_DELAY_MS - ms
+const sliderToDelay = (v: number) => MIN_DELAY_MS + MAX_DELAY_MS - v
+
 export default function Simulation() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -15,13 +21,13 @@ export default function Simulation() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [playing, setPlaying] = useState(false)
-  const [speed, setSpeed] = useState(300)
+  const [delay, setDelay] = useState(300)
 
   const isDone = sim?.status === 'completed' || sim?.status === 'stopped'
   const isDoneRef = useRef(isDone)
-  const speedRef = useRef(speed)
+  const delayRef = useRef(delay)
   useEffect(() => { isDoneRef.current = isDone }, [isDone])
-  useEffect(() => { speedRef.current = speed }, [speed])
+  useEffect(() => { delayRef.current = delay }, [delay])
 
   useEffect(() => {
     if (!validId) { setError('Invalid simulation ID.'); return }
@@ -70,9 +76,11 @@ export default function Simulation() {
 
     const loop = async () => {
       while (active && !isDoneRef.current) {
+        setBusy(true)
         const done = await doStep()
+        setBusy(false)
         if (done || !active) break
-        await new Promise<void>(r => setTimeout(r, speedRef.current))
+        await new Promise<void>(r => setTimeout(r, delayRef.current))
       }
       if (active) setPlaying(false)
     }
@@ -83,8 +91,9 @@ export default function Simulation() {
 
   const males = state?.creatures.filter(c => c.sex === 'male').length ?? 0
   const females = state?.creatures.filter(c => c.sex === 'female').length ?? 0
-
-  const ticksPerSec = speed < 100 ? `${(1000 / speed).toFixed(0)} t/s` : `${(1000 / speed).toFixed(1)} t/s`
+  const ticksPerSec = delay < 100
+    ? `${(1000 / delay).toFixed(0)} t/s`
+    : `${(1000 / delay).toFixed(1)} t/s`
 
   return (
     <div className="screen sim-screen">
@@ -126,18 +135,18 @@ export default function Simulation() {
         <label>Speed: <strong>{ticksPerSec}</strong></label>
         <input
           type="range"
-          min={50}
-          max={2000}
+          min={MIN_DELAY_MS}
+          max={MAX_DELAY_MS}
           step={50}
-          value={2050 - speed}
-          onChange={e => setSpeed(2050 - parseInt(e.target.value, 10))}
+          value={delayToSlider(delay)}
+          onChange={e => setDelay(sliderToDelay(parseInt(e.target.value, 10)))}
         />
         <span className="speed-hint">slow</span>
         <span className="speed-hint">fast</span>
       </div>
 
       <div className="board-wrap">
-        <Board state={state} pixelSize={600} />
+        <Board state={state} />
         <div className="board-legend">
           <span className="legend-dot male" />Male
           <span className="legend-dot female" />Female
