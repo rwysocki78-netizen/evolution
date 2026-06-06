@@ -16,6 +16,7 @@ export default function Results() {
 
   useEffect(() => {
     if (!validId) { setError('Invalid simulation ID.'); setStatsLoading(false); return }
+    setError(null)
     api.simulations.get(simId)
       .then(setSim)
       .catch(() => setError('Failed to load simulation.'))

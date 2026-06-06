@@ -6,8 +6,8 @@ interface Props {
 }
 
 export default function ParamForm({ params, onChange }: Props) {
-  const set = (key: keyof SimParamsRequest, value: unknown) =>
-    onChange({ ...params, [key]: value })
+  const set = <K extends keyof SimParamsRequest>(key: K, value: SimParamsRequest[K]) =>
+    onChange({ ...params, [key]: value } as SimParamsRequest)
 
   const intInput = (key: keyof SimParamsRequest, label: string, min?: number) => (
     <tr key={key}>
@@ -20,7 +20,8 @@ export default function ParamForm({ params, onChange }: Props) {
           value={params[key] as number}
           onChange={e => {
             const v = e.target.valueAsNumber
-            if (Number.isFinite(v)) set(key, Math.round(v))
+            // Cast required: key is generic keyof SimParamsRequest; value is known to be numeric
+            if (Number.isFinite(v)) set(key, Math.round(v) as SimParamsRequest[typeof key])
           }}
         />
       </td>
@@ -45,7 +46,7 @@ export default function ParamForm({ params, onChange }: Props) {
           value={params[key] as number}
           onChange={e => {
             const v = e.target.valueAsNumber
-            if (Number.isFinite(v)) set(key, v)
+            if (Number.isFinite(v)) set(key, v as SimParamsRequest[typeof key])
           }}
         />
       </td>
@@ -70,7 +71,7 @@ export default function ParamForm({ params, onChange }: Props) {
               style={{ width: 80 }}
               onChange={e => {
                 const v = e.target.valueAsNumber
-                if (Number.isFinite(v)) set(key, [v, hi])
+                if (Number.isFinite(v)) set(key, [v, hi] as SimParamsRequest[typeof key])
               }}
             />
             <span>–</span>
@@ -81,7 +82,7 @@ export default function ParamForm({ params, onChange }: Props) {
               style={{ width: 80 }}
               onChange={e => {
                 const v = e.target.valueAsNumber
-                if (Number.isFinite(v)) set(key, [lo, v])
+                if (Number.isFinite(v)) set(key, [lo, v] as SimParamsRequest[typeof key])
               }}
             />
           </div>
