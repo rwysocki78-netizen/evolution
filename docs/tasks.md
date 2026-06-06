@@ -68,10 +68,10 @@ This is the core. Build and unit-test in isolation.
 
 ## Phase 4 — Frontend shell & config
 
-- [ ] App shell + screen routing (Setup / Simulation / Results)
-- [ ] Shared TS types mirroring Pydantic schemas
-- [ ] Typed API client
-- [ ] `Setup` screen: full parameter form with sensible defaults + validation
+- [x] App shell + screen routing (Setup / Simulation / Results)
+- [x] Shared TS types mirroring Pydantic schemas
+- [x] Typed API client
+- [x] `Setup` screen: full parameter form with sensible defaults + validation
 - [ ] Parameter presets (save/load a config) — nice-to-have
 
 ## Phase 5 — Board rendering
