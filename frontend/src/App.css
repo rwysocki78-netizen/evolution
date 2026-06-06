@@ -223,6 +223,79 @@ select { width: auto; min-width: 120px; cursor: pointer; }
 .legend-dot.fruit   { background: #7ecfa4; }
 .legend-dot.poison  { background: #cf7e7e; }
 
+/* ── Charts ── */
+
+.charts-section { display: flex; flex-direction: column; gap: 12px; }
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .charts-grid { grid-template-columns: 1fr; }
+}
+
+.chart-wrap {
+  background: #16161d;
+  border: 1px solid #2a2a38;
+  border-radius: 8px;
+  padding: 14px 16px 10px;
+}
+
+.chart-title {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a9bb5;
+}
+
+.chart-svg { width: 100%; height: auto; display: block; }
+
+.chart-empty {
+  color: #4a5568;
+  font-size: 13px;
+  text-align: center;
+  padding: 20px 0;
+  margin: 0;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #8a9bb5;
+}
+
+.chart-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Run history ── */
+
+.run-history { margin-top: 32px; }
+
+.run-history h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #8a9bb5;
+}
+
 /* ── History list ── */
 
 .history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
