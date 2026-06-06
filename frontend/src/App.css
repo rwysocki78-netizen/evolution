@@ -186,6 +186,56 @@ select { width: auto; min-width: 120px; cursor: pointer; }
   min-height: 160px;
 }
 
+/* ── Board canvas ── */
+
+.board-wrap {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.board-wrap canvas {
+  display: block;
+  border-radius: 6px;
+  border: 1px solid #2a2a38;
+}
+
+.board-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8a9bb5;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+/* ── Speed control ── */
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #8a9bb5;
+  font-size: 13px;
+}
+
+.speed-control select { width: auto; min-width: 72px; }
+
+/* ── Play/Pause button variant ── */
+
+.controls button.btn-pause {
+  border-color: #cfb87e;
+  color: #cfb87e;
+}
+.controls button.btn-pause:hover:not(:disabled) { background: #2a2218; }
+
 /* ── History list ── */
 
 .history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }

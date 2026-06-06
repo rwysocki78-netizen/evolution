@@ -24,28 +24,28 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 This is the core. Build and unit-test in isolation.
 
-- [ ] `Position`, `Direction`, `Sex` primitives
-- [ ] `Genome` dataclass + gene registry (names, types, mutate fns)
-- [ ] `Creature` (state + genome)
-- [ ] `World` (grid, walls, fruit/poison placement, occupancy lookup)
-- [ ] `genetics.py` — inheritance (50/50 per gene) + mutation
-  - [ ] Unit test: child genes come from one parent or other
-  - [ ] Unit test: mutation rate/magnitude behave as configured
-- [ ] Fight resolution (energy-weighted probability, winner survives min 1)
-  - [ ] Unit test: win probability matches energy ratio over many trials
-- [ ] Reproduction (eligibility, cost, litter size from weights, queued placement)
-  - [ ] Unit test: no free cells → cost paid, offspring lost
-  - [ ] Eligibility includes `age >= MATURITY_AGE` (juveniles cannot reproduce)
-- [ ] Energy ceiling: clamp to `MAX_ENERGY` (or juvenile cap) after every gain
-  - [ ] Unit test: juvenile capped at `MAX_ENERGY * JUVENILE_MAX_ENERGY_FACTOR`, full cap after maturity
-- [ ] Poison resistance: `resistance` continuous gene + multiplicative damage
-  - [ ] Unit test: damage = `round(POISON_ENERGY_VALUE * (1-p) ** resistance)`; mutation floored at 0
-- [ ] `VisionData` builder (scan visionRange, 8 directions)
-- [ ] Behaviour interface + `ThresholdBehavior` + `PriorityBehavior`
-- [ ] `tick.py` — full tick sequence with **randomised order**
-  - [ ] Unit test: death by age, death by starvation, walls block movement
-  - [ ] Unit test: deterministic given a fixed seed
-- [ ] `stats.py` — aggregate per-tick statistics
+- [x] `Position`, `Direction`, `Sex` primitives
+- [x] `Genome` dataclass + gene registry (names, types, mutate fns)
+- [x] `Creature` (state + genome)
+- [x] `World` (grid, walls, fruit/poison placement, occupancy lookup)
+- [x] `genetics.py` — inheritance (50/50 per gene) + mutation
+  - [x] Unit test: child genes come from one parent or other
+  - [x] Unit test: mutation rate/magnitude behave as configured
+- [x] Fight resolution (energy-weighted probability, winner survives min 1)
+  - [x] Unit test: win probability matches energy ratio over many trials
+- [x] Reproduction (eligibility, cost, litter size from weights, queued placement)
+  - [x] Unit test: no free cells → cost paid, offspring lost
+  - [x] Eligibility includes `age >= MATURITY_AGE` (juveniles cannot reproduce)
+- [x] Energy ceiling: clamp to `MAX_ENERGY` (or juvenile cap) after every gain
+  - [x] Unit test: juvenile capped at `MAX_ENERGY * JUVENILE_MAX_ENERGY_FACTOR`, full cap after maturity
+- [x] Poison resistance: `resistance` continuous gene + multiplicative damage
+  - [x] Unit test: damage = `round(POISON_ENERGY_VALUE * (1-p) ** resistance)`; mutation floored at 0
+- [x] `VisionData` builder (scan visionRange, 8 directions)
+- [x] Behaviour interface + `ThresholdBehavior` + `PriorityBehavior`
+- [x] `tick.py` — full tick sequence with **randomised order**
+  - [x] Unit test: death by age, death by starvation, walls block movement
+  - [x] Unit test: deterministic given a fixed seed
+- [x] `stats.py` — aggregate per-tick statistics
 
 ## Phase 2 — Persistence
 
@@ -76,10 +76,10 @@ This is the core. Build and unit-test in isolation.
 
 ## Phase 5 — Board rendering
 
-- [ ] `Board.tsx` Canvas renderer (grid, creatures by sex, fruits, poisons)
-- [ ] Run / pause / step controls
-- [ ] Tick counter + live population readout
-- [ ] Adjustable playback speed
+- [x] `Board.tsx` Canvas renderer (grid, creatures by sex, fruits, poisons)
+- [x] Run / pause / step controls
+- [x] Tick counter + live population readout
+- [x] Adjustable playback speed
 
 ## Phase 6 — Results & statistics
 
