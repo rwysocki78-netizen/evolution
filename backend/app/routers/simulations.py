@@ -194,6 +194,12 @@ def _require_running(session: SimSession) -> None:
 # Endpoints
 # ---------------------------------------------------------------------------
 
+@router.get("/defaults", response_model=SimParamsRequest)
+def get_defaults() -> SimParamsRequest:
+    """Return the default simulation parameters (mirrors SimParams engine defaults)."""
+    return SimParamsRequest()
+
+
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=SimulationResponse)
 def create_simulation(body: SimParamsRequest, db: Session = Depends(get_db)) -> SimulationResponse:
     """Create and initialise a new simulation run. Returns run metadata."""

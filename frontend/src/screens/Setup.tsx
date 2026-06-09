@@ -4,44 +4,6 @@ import ParamForm from '../components/ParamForm'
 import { api } from '../api/client'
 import type { SimParamsRequest, SimulationResponse } from '../types'
 
-const DEFAULTS: SimParamsRequest = {
-  board_size: 20,
-  initial_energy: 50,
-  max_energy: 100,
-  energy_decay_per_tick: 1,
-  fight_energy_cost: 10,
-  reproduction_energy_cost: 20,
-  reproduction_min_energy: 40,
-  maturity_age: 5,
-  juvenile_max_energy_factor: 0.5,
-  fruit_energy_value: 20,
-  poison_energy_value: 30,
-  resistance_reduction_per_point: 0.1,
-  max_fruits_on_board: 20,
-  max_poisons_on_board: 10,
-  mutation_rate: 0.05,
-  mutation_magnitude: 1,
-  initial_lifespan: [80, 120],
-  initial_vision_range: [1, 3],
-  initial_metabolism: [0.8, 1.2],
-  initial_aggression: [0.3, 0.7],
-  initial_hunger_threshold: [20, 40],
-  initial_safe_threshold: [60, 80],
-  initial_resistance: [0, 2],
-  reproduction_weights: [
-    { children: 1, weight: 0.50 },
-    { children: 2, weight: 0.30 },
-    { children: 3, weight: 0.15 },
-    { children: 4, weight: 0.05 },
-  ],
-  initial_population: 50,
-  total_turns: 1000,
-  behavior_strategy: 'threshold',
-  snapshot_enabled: true,
-  snapshot_interval: 10,
-  seed: null,
-}
-
 function validate(p: SimParamsRequest): string[] {
   const errors: string[] = []
   if (p.board_size < 5) errors.push('Board size must be at least 5.')
@@ -86,18 +48,21 @@ function statusClass(s: string) {
 
 export default function Setup() {
   const navigate = useNavigate()
-  const [params, setParams] = useState<SimParamsRequest>(DEFAULTS)
+  const [params, setParams] = useState<SimParamsRequest | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [errors, setErrors] = useState<string[]>([])
   const [apiError, setApiError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [history, setHistory] = useState<SimulationResponse[]>([])
 
   useEffect(() => {
+    api.simulations.defaults().then(setParams).catch(() => setLoadError('Failed to load default parameters.'))
     api.simulations.list().then(list => setHistory([...list].reverse())).catch(() => {})
   }, [])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (!params) return
     const errs = validate(params)
     setErrors(errs)
     if (errs.length > 0) return
@@ -117,20 +82,29 @@ export default function Setup() {
   return (
     <div className="screen">
       <h1>Evolution — Setup</h1>
-      <form onSubmit={handleSubmit}>
-        <ParamForm params={params} onChange={setParams} />
-        {errors.length > 0 && (
-          <div className="error-box">
-            {errors.map(e => <p key={e}>{e}</p>)}
-          </div>
-        )}
-        {apiError && (
-          <div className="error-box"><p>{apiError}</p></div>
-        )}
-        <button type="submit" className="btn-primary" disabled={submitting}>
-          {submitting ? 'Creating…' : 'Start Simulation'}
-        </button>
-      </form>
+
+      {loadError && <div className="error-box"><p>{loadError}</p></div>}
+
+      {params === null && !loadError && (
+        <p style={{ color: '#8a9bb5' }}>Loading parameters…</p>
+      )}
+
+      {params !== null && (
+        <form onSubmit={handleSubmit}>
+          <ParamForm params={params} onChange={setParams} />
+          {errors.length > 0 && (
+            <div className="error-box">
+              {errors.map(e => <p key={e}>{e}</p>)}
+            </div>
+          )}
+          {apiError && (
+            <div className="error-box"><p>{apiError}</p></div>
+          )}
+          <button type="submit" className="btn-primary" disabled={submitting}>
+            {submitting ? 'Creating…' : 'Start Simulation'}
+          </button>
+        </form>
+      )}
 
       {history.length > 0 && (
         <div className="run-history">

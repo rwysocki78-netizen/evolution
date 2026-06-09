@@ -33,6 +33,9 @@ function post<T>(path: string, body?: unknown): Promise<T> {
 
 export const api = {
   simulations: {
+    defaults: () =>
+      request<SimParamsRequest>('/simulations/defaults'),
+
     create: (params: SimParamsRequest) =>
       post<SimulationResponse>('/simulations', params),
 
