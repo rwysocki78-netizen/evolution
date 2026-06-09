@@ -1,8 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ParamForm from '../components/ParamForm'
 import { api } from '../api/client'
-import type { SimParamsRequest } from '../types'
+import type { SimParamsRequest, SimulationResponse } from '../types'
 
 const DEFAULTS: SimParamsRequest = {
   board_size: 20,
@@ -78,12 +78,23 @@ function validate(p: SimParamsRequest): string[] {
   return errors
 }
 
+function statusClass(s: string) {
+  if (s === 'running') return 'running'
+  if (s === 'completed') return 'completed'
+  return 'stopped'
+}
+
 export default function Setup() {
   const navigate = useNavigate()
   const [params, setParams] = useState<SimParamsRequest>(DEFAULTS)
   const [errors, setErrors] = useState<string[]>([])
   const [apiError, setApiError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [history, setHistory] = useState<SimulationResponse[]>([])
+
+  useEffect(() => {
+    api.simulations.list().then(list => setHistory([...list].reverse())).catch(() => {})
+  }, [])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -120,6 +131,26 @@ export default function Setup() {
           {submitting ? 'Creating…' : 'Start Simulation'}
         </button>
       </form>
+
+      {history.length > 0 && (
+        <div className="run-history">
+          <h2>Recent Runs</h2>
+          <div className="history-list">
+            {history.map(run => (
+              <div key={run.id} className="history-item" onClick={() => navigate(`/results/${run.id}`)}>
+                <span className="run-id">#{run.id}</span>
+                <span className={`run-status ${statusClass(run.status)}`}>{run.status}</span>
+                <span>{run.behavior_strategy}</span>
+                <span>{run.board_size}×{run.board_size}</span>
+                <span>{run.initial_population} pop</span>
+                <span className="run-meta">
+                  {run.total_turns_run} / {run.total_turns_configured} ticks
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
