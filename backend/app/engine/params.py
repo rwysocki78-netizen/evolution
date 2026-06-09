@@ -16,7 +16,7 @@ class SimParams:
     # Energy
     initial_energy: float = 50.0
     max_energy: float = 100.0
-    energy_decay_per_tick: float = 1.0
+    energy_decay_per_tick: float = 0.8
     fight_energy_cost: float = 10.0
     reproduction_energy_cost: float = 20.0
     reproduction_min_energy: float = 40.0
@@ -26,11 +26,11 @@ class SimParams:
     juvenile_max_energy_factor: float = 0.5
 
     # World objects
-    fruit_energy_value: float = 20.0
+    fruit_energy_value: float = 22.0
     poison_energy_value: float = 30.0
     resistance_reduction_per_point: float = 0.1
-    max_fruits_on_board: int = 20
-    max_poisons_on_board: int = 10
+    max_fruits_on_board: int = 48
+    max_poisons_on_board: int = 5
 
     # Mutation
     mutation_rate: float = 0.05
@@ -58,7 +58,7 @@ class SimParams:
     # Population & simulation
     initial_population: int = 50
     total_turns: int = 1000
-    behavior_strategy: str = "threshold"
+    behavior_strategy: str = "priority"
     snapshot_enabled: bool = True
     snapshot_interval: int = 10
     seed: int | None = None

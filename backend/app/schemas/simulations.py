@@ -4,6 +4,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.engine.params import SimParams as _SimParams
+
+_d = _SimParams()  # single source of default values
+
 
 # ---------------------------------------------------------------------------
 # Request bodies
@@ -16,56 +20,61 @@ class ReproductionWeightIn(BaseModel):
 
 class SimParamsRequest(BaseModel):
     # Board
-    board_size: int = 20
+    board_size: int = _d.board_size
 
     # Energy
-    initial_energy: float = 50.0
-    max_energy: float = 100.0
-    energy_decay_per_tick: float = 1.0
-    fight_energy_cost: float = 10.0
-    reproduction_energy_cost: float = 20.0
-    reproduction_min_energy: float = 40.0
+    initial_energy: float = _d.initial_energy
+    max_energy: float = _d.max_energy
+    energy_decay_per_tick: float = _d.energy_decay_per_tick
+    fight_energy_cost: float = _d.fight_energy_cost
+    reproduction_energy_cost: float = _d.reproduction_energy_cost
+    reproduction_min_energy: float = _d.reproduction_min_energy
 
     # Life stage
-    maturity_age: int = 5
-    juvenile_max_energy_factor: float = 0.5
+    maturity_age: int = _d.maturity_age
+    juvenile_max_energy_factor: float = _d.juvenile_max_energy_factor
 
     # World
-    fruit_energy_value: float = 20.0
-    poison_energy_value: float = 30.0
-    resistance_reduction_per_point: float = 0.1
-    max_fruits_on_board: int = 20
-    max_poisons_on_board: int = 10
+    fruit_energy_value: float = _d.fruit_energy_value
+    poison_energy_value: float = _d.poison_energy_value
+    resistance_reduction_per_point: float = _d.resistance_reduction_per_point
+    max_fruits_on_board: int = _d.max_fruits_on_board
+    max_poisons_on_board: int = _d.max_poisons_on_board
 
     # Mutation
-    mutation_rate: float = 0.05
-    mutation_magnitude: float = 1.0
+    mutation_rate: float = _d.mutation_rate
+    mutation_magnitude: float = _d.mutation_magnitude
 
     # Genome initial ranges [min, max]
-    initial_lifespan: list[int] = Field(default=[80, 120], min_length=2, max_length=2)
-    initial_vision_range: list[int] = Field(default=[1, 3], min_length=2, max_length=2)
-    initial_metabolism: list[float] = Field(default=[0.8, 1.2], min_length=2, max_length=2)
-    initial_aggression: list[float] = Field(default=[0.3, 0.7], min_length=2, max_length=2)
-    initial_hunger_threshold: list[int] = Field(default=[20, 40], min_length=2, max_length=2)
-    initial_safe_threshold: list[int] = Field(default=[60, 80], min_length=2, max_length=2)
-    initial_resistance: list[float] = Field(default=[0.0, 2.0], min_length=2, max_length=2)
+    initial_lifespan: list[int] = Field(
+        default_factory=lambda: list(_d.initial_lifespan), min_length=2, max_length=2)
+    initial_vision_range: list[int] = Field(
+        default_factory=lambda: list(_d.initial_vision_range), min_length=2, max_length=2)
+    initial_metabolism: list[float] = Field(
+        default_factory=lambda: list(_d.initial_metabolism), min_length=2, max_length=2)
+    initial_aggression: list[float] = Field(
+        default_factory=lambda: list(_d.initial_aggression), min_length=2, max_length=2)
+    initial_hunger_threshold: list[int] = Field(
+        default_factory=lambda: list(_d.initial_hunger_threshold), min_length=2, max_length=2)
+    initial_safe_threshold: list[int] = Field(
+        default_factory=lambda: list(_d.initial_safe_threshold), min_length=2, max_length=2)
+    initial_resistance: list[float] = Field(
+        default_factory=lambda: list(_d.initial_resistance), min_length=2, max_length=2)
 
     # Reproduction
     reproduction_weights: list[ReproductionWeightIn] = Field(
-        default=[
-            ReproductionWeightIn(children=1, weight=0.50),
-            ReproductionWeightIn(children=2, weight=0.30),
-            ReproductionWeightIn(children=3, weight=0.15),
-            ReproductionWeightIn(children=4, weight=0.05),
+        default_factory=lambda: [
+            ReproductionWeightIn(children=w.children, weight=w.weight)
+            for w in _d.reproduction_weights
         ]
     )
 
     # Population & simulation
-    initial_population: int = 50
-    total_turns: int = 1000
-    behavior_strategy: str = "threshold"
-    snapshot_enabled: bool = True
-    snapshot_interval: int = 10
+    initial_population: int = _d.initial_population
+    total_turns: int = _d.total_turns
+    behavior_strategy: str = _d.behavior_strategy
+    snapshot_enabled: bool = _d.snapshot_enabled
+    snapshot_interval: int = _d.snapshot_interval
     seed: int | None = None
 
 
